@@ -5,9 +5,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.bson.Document;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,7 +44,7 @@ public class Controller {
                 int i=0;
 
                 // storing the title of movie without any special chars
-                String title="_"+tableData[11].replaceAll("[^A-Za-z0-9_]", "_");
+                String title="_"+tableData[11].replace(".", "_").replace("$", "_");
 
                 // map to store the headers as keys and its values
                 HashMap<String, String> tableValues = new HashMap<>();
@@ -83,15 +81,15 @@ public class Controller {
     }
 
 
-    @GetMapping("api/v1/movie/{title}")
-    public List<Document> getData(@PathVariable("title") String title){
+    @GetMapping("/api/v1/movie")
+    public List<Document> getData(@RequestParam(value = "name") String title){
 
         // mongodb connection
         MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
         MongoDatabase mongoDatabase = mongoClient.getDatabase("movies");
 
         // storing the title of movie without any special chars as stored in db
-        String name="_"+title.replaceAll("[^A-Za-z0-9_]", "_");
+        String name="_"+title.replace(".", "_").replace("$", "_");
 
         // fetching all the data to collection with the user specified movie name
         MongoCollection<Document> mongoCollection=mongoDatabase.getCollection(name);
