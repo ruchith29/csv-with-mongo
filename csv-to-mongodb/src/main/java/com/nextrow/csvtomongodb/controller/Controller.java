@@ -106,4 +106,45 @@ public class Controller {
         // returning list with all the info of user specified movie name
         return documents;
     }
+
+
+    @PostMapping("/addMovie")
+    // getting data in form of json or document
+    public String addMovie(@RequestBody Document document ){
+
+        // converting the collection name as it is stored in the database
+        String movieTitle=document.getString("title").replace(".","_").replace("$","_");
+
+        // mongo connection
+        MongoClient mongoClient=MongoClients.create("mongodb://localhost:27017");
+        MongoDatabase mongoDatabase=mongoClient.getDatabase("movies");
+
+        // creating the table or collection
+        MongoCollection<Document> mongoCollection=mongoDatabase.getCollection(movieTitle);
+
+        // inserting the document or data
+        mongoCollection.insertOne(document);
+
+        System.out.println("Insertion Done");
+
+        return  "Movie: "+movieTitle+" is added.\n"+document;
+    }
+
+    // deleting the movie
+    @DeleteMapping("/deleteMovie/{title}")
+    public String deleteMovie(@PathVariable("title") String movieTitle){
+
+        // mongo connection
+        MongoClient mongoClient=MongoClients.create("mongodb://localhost:27017");
+        MongoDatabase mongoDatabase=mongoClient.getDatabase("movies");
+
+        // getting the collection
+        MongoCollection<Document> mongoCollection=mongoDatabase.getCollection(movieTitle);
+        // dropping the collection
+        mongoCollection.drop();
+
+        return "Movie Deleted Successfully!";
+
+    }
+
 }
